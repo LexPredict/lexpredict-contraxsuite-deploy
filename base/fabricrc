@@ -26,5 +26,5 @@ celery_opts = -l info -B
 
 # v1.01 Superuser credentials 
 superuser_username = demo
-superuser_password = demo
+superuser_password = demo1234
 superuser_email = demo@demo.com
