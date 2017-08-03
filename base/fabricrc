@@ -6,7 +6,7 @@ templates_prefix = contrax
 
 # GIT credentials
 git_branch = 1.0
-git_uri = git@github.com:LexPredict/lexpredict-contraxsuite.git
+git_uri = https://github.com/LexPredict/lexpredict-contraxsuite.git
 
 # DB credentials
 db_driver = postgresql_psycopg2
@@ -28,4 +28,3 @@ celery_opts = -l info -B
 superuser_username = demo
 superuser_password = demo
 superuser_email = demo@demo.com
-
