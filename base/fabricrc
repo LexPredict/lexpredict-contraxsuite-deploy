@@ -1,0 +1,31 @@
+# Project paths
+base_dir = /opt
+project_path = lexpredict-contraxsuite/contraxsuite_services
+ve_dir = ve
+templates_prefix = contrax
+
+# GIT credentials
+git_branch = 1.0
+git_uri = git@github.com:LexPredict/lexpredict-contraxsuite.git
+
+# DB credentials
+db_driver = postgresql_psycopg2
+db_host = localhost
+db_port = 5432
+db_name = contrax1
+db_user = contrax1
+db_password = contrax1
+
+# UWSGI settings
+uwsgi_socket = 127.0.0.1:8001
+
+# CELERY settings
+celery_worker = 2
+celery_app = apps.task
+celery_opts = -l info -B
+
+# v1.01 Superuser credentials 
+superuser_username = demo
+superuser_password = demo
+superuser_email = demo@demo.com
+

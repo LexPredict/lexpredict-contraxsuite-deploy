@@ -1,0 +1,12 @@
+user = ubuntu
+
+key_filename = your-ssh-key-name.pem
+
+forward_agent = True
+public_ip = 11.111.111.11
+dns_name = 11.111.111.11
+hosts = 11.111.111.11
+
+#https_redirect = False
+#cert_email = your@email.com
+
