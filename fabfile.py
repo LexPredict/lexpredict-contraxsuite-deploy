@@ -1061,7 +1061,7 @@ def create_superuser():
     Create superuser
     :return:
     """
-    if env.get('superuser_name'):
+    if env.get('superuser_username'):
         manage('create_superuser --username {} --password {} --email {}'.format(
             env.superuser_username,
             env.superuser_password,

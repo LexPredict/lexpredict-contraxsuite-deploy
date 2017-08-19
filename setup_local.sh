@@ -16,12 +16,7 @@ fab -c local/fabricrc elasticsearch_install
 
 fab -c local/fabricrc git_clone
 fab -c local/fabricrc create_dirs
-fab -c local/fabricrc upload_template_and_reload:settings
-fab -c local/fabricrc upload_template_and_reload:502
-fab -c local/fabricrc upload_template_and_reload:run
-fab -c local/fabricrc upload_template_and_reload:nginx
-fab -c local/fabricrc upload_template_and_reload:uwsgi
-fab -c local/fabricrc upload_template_and_reload:uwsgi-init
+fab -c local/fabricrc upload_templates
 fab -c local/fabricrc manage:force_migrate
 fab -c local/fabricrc manage:update_index
 fab -c local/fabricrc manage:set_site
@@ -31,4 +26,4 @@ fab -c local/fabricrc ssl_install
 fab -c local/fabricrc start
 
 #v1.01
-#fab -c local/fabricrc create_superuser
+fab -c local/fabricrc create_superuser
