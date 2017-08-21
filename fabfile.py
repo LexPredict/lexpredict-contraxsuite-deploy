@@ -497,7 +497,7 @@ def stop_celery():
     Stop celery workers
     """
     with cd(env.project_dir):
-        run('{ve_dir}/bin/celery multi stop {celery_app}'.format(
+        run('{ve_dir}/bin/celery multi stop {celery_worker} -A {celery_app}'.format(
             ve_dir=env.virtualenv_dir,
             celery_worker=env.celery_worker,
             celery_app=env.celery_app))
