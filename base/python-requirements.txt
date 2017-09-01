@@ -4,6 +4,7 @@ celery[redis]==4.0.2
 datefinder==0.6.0
 django==1.11.3
 django-allauth==0.31.0
+django-allauth-2fa==0.4.4
 django-autocomplete-light==3.2.1
 django-braces==1.11.0
 django-celery-results==1.0.1
