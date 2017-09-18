@@ -704,12 +704,15 @@ def debian_add_repository(repository_string):
 
 
 @task
-def debian_update():
+def debian_update(fix_missing=False):
     """
     Refresh apt repository cache.
     """
     # Update repo cache
-    update_ret = sudo('apt-get -y update')
+    if fix_missing:
+        update_ret = sudo('apt-get -y update --fix-missing')
+    else:
+        update_ret = sudo('apt-get -y update')
     if update_ret.failed:
         raise RuntimeError('Unable to update apt repository information.')
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+sudo apt-get update --fix-missing
 sudo apt-get install python3-dev python-setuptools python-virtualenv python-pip
 
 virtualenv -p python3 ve

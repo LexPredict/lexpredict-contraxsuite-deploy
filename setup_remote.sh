@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-sudo apt-get install python3-dev python-setuptools python-virtualenv python-pip
+sudo apt-get update -y --fix-missing
+sudo apt-get install -y python3-dev python-setuptools python-virtualenv python-pip
 
 virtualenv -p python3 ve
 source ve/bin/activate
