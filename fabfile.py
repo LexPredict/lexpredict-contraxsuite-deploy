@@ -885,7 +885,7 @@ def ssl_install():
     """
     if env.get('https_redirect'):
         sudo('letsencrypt certonly --email %s'
-             ' --text --agree-tos -d %s' % (env.cert_email, env.hosts))
+             ' --text --agree-tos -d %s' % (env.cert_email, env.dns_name))
 
 
 @task
