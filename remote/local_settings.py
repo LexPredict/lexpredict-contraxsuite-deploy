@@ -42,9 +42,10 @@ ALLOWED_HOSTS = (
     'localhost',
     '%(host)s',
     '%(public_ip)s',
+    '%(dns_name)s'
 )
 
 INTERNAL_IPS = (
     '127.0.0.1',
-    '%(host)s'
+    'localhost'
 )

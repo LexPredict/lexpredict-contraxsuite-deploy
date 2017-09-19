@@ -20,7 +20,6 @@ DEBUG_TEMPLATE = False
 EMAIL_PORT = 1025
 EMAIL_HOST = 'localhost'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_PORT = 587
 
 ADMINS = (
     ('Example, LLC', 'it@example.com'),
@@ -43,9 +42,10 @@ ALLOWED_HOSTS = (
     'localhost',
     '%(host)s',
     '%(public_ip)s',
+    '%(dns_name)s'
 )
 
 INTERNAL_IPS = (
     '127.0.0.1',
-    '%(host)s'
+    'localhost'
 )
