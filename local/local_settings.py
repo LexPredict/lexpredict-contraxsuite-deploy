@@ -4,7 +4,7 @@ SECRET_KEY = 'your-secret-key'
 
 AUTOLOGIN = False
 
-HOST_NAME = '%(host)s'
+HOST_NAME = '%(dns_name)s'
 DEBUG = False
 DEBUG_SQL = False
 DEBUG_TEMPLATE = False

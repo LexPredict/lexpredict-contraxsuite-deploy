@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Generate new SSH key for local usage
 ssh-keygen -f ~/.ssh/id_rsa
 

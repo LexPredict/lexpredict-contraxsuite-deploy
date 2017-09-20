@@ -13,7 +13,7 @@ from fabric.api import env, prefix
 from fabric.colors import red, green, blue, yellow
 from fabric.decorators import task
 from fabric.operations import get, hide, local as _local, \
-    run as _run, sudo as _sudo, reboot
+    run as _run, sudo as _sudo, reboot, put
 from fabric.context_managers import cd, settings
 from fabric.contrib import django
 from fabric.contrib.files import exists, upload_template
@@ -98,15 +98,21 @@ Get local django settings
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 try:
     django.settings_module('settings')
-    from django.conf import settings as django_settings
+    from django.conf import settings
+    STATICFILES_DIR = settings.STATICFILES_DIRS[0].replace(
+        settings.PROJECT_DIR.root, env.project_dir)
+    STATIC_ROOT = settings.STATIC_ROOT.replace(settings.PROJECT_DIR.root, env.project_dir)
+    MEDIA_ROOT = settings.MEDIA_ROOT.replace(settings.PROJECT_DIR.root, env.project_dir)
+    FILEBROWSER_DIRECTORY = settings.FILEBROWSER_DIRECTORY
+    LOG_FILE_NAME = settings.LOG_FILE_NAME
+    CELERY_LOG_FILE_NAME = settings.CELERY_LOG_FILE_NAME
 except ImportError:
-    class django_settings:
-        ROOT_DIR = env.base_dir
-        STATIC_ROOT = os.path.join(env.project_dir, 'staticfiles')
-        MEDIA_ROOT = os.path.join(env.project_dir, 'media')
-        FILEBROWSER_DIRECTORY = 'data/documents/'
-        LOG_FILE_NAME = 'log.txt'
-        CELERY_LOG_FILE_NAME = 'celery.log'
+    STATICFILES_DIR = os.path.join(env.project_dir, '..', 'static')
+    STATIC_ROOT = os.path.join(env.project_dir, 'staticfiles')
+    MEDIA_ROOT = os.path.join(env.project_dir, 'media')
+    FILEBROWSER_DIRECTORY = 'data/documents/'
+    LOG_FILE_NAME = 'log.txt'
+    CELERY_LOG_FILE_NAME = 'celery.log'
 
 
 templates = {
@@ -310,6 +316,19 @@ def git_pull(branch=None):
         run_check('find . -name "*pyc" -delete', use_sudo=True)
 
 
+@task
+@log_call
+def git_status(branch=None):
+    """
+    Update git by pulling.
+    """
+    if not branch:
+        branch = env.git_branch
+    with cd(env.project_dir):
+        run_check('git checkout {}'.format(branch))
+        run_check('git status')
+
+
 """
 --------------------------------
 Install instance
@@ -397,19 +416,19 @@ def create_dirs():
     # remove default nginx config
     sudo('rm -f /etc/nginx/sites-enabled/default')
     # create static and media dirs
-    mkdir(django_settings.STATIC_ROOT, env.user, env.user, True)
-    mkdir(django_settings.MEDIA_ROOT, env.user, env.user, True)
+    mkdir(STATIC_ROOT, env.user, env.user, True)
+    mkdir(MEDIA_ROOT, env.user, env.user, True)
     # create dirs for documents
-    mkdir(os.path.join(django_settings.MEDIA_ROOT, django_settings.FILEBROWSER_DIRECTORY), env.user, env.user, True)
+    mkdir(os.path.join(MEDIA_ROOT, FILEBROWSER_DIRECTORY), env.user, env.user, True)
     # create tika log file, otherwise celery won't register tasks
     run_check('touch /tmp/tika.log')
     sudo('chown -R {}:{} /tmp/tika.log'.format(env.user, env.user))
     # create app log file
-    app_log_file_path = os.path.join(env.project_dir, django_settings.LOG_FILE_NAME)
+    app_log_file_path = os.path.join(env.project_dir, LOG_FILE_NAME)
     sudo('touch %s' % app_log_file_path)
     sudo('chown -R {}:{} {}'.format(env.user, env.user, app_log_file_path))
     # create celery log file
-    celery_log_file_path = os.path.join(env.project_dir, django_settings.CELERY_LOG_FILE_NAME)
+    celery_log_file_path = os.path.join(env.project_dir, CELERY_LOG_FILE_NAME)
     sudo('touch %s' % celery_log_file_path)
     sudo('chown -R {}:{} {}'.format(env.user, env.user, celery_log_file_path))
 
@@ -515,7 +534,7 @@ def start_celery():
             celery_worker=env.celery_worker,
             celery_app=env.celery_app,
             opts=env.celery_opts,
-            log_file_name=django_settings.CELERY_LOG_FILE_NAME))
+            log_file_name=CELERY_LOG_FILE_NAME))
 
 
 @task
@@ -1064,7 +1083,7 @@ def create_superuser():
     Create superuser
     :return:
     """
-    if env.get('superuser_username'):
+    if env.get('superuser_name'):
         manage('create_superuser --username {} --password {} --email {}'.format(
             env.superuser_username,
             env.superuser_password,
@@ -1080,3 +1099,56 @@ def virtualenv():
     with cd(env.base_dir):
         with prefix("source %s/activate" % env.ve_bin):
             yield
+
+
+@task
+def jqwidgets_install():
+    if env.get('jqwidgets_zip_archive_path'):
+        # if not localhost copy archive to a remote /tmp
+        if env.host != 'localhost':
+            put(env.jqwidgets_zip_archive_path, '/tmp')
+            env.jqwidgets_zip_archive_path = os.path.join(
+                '/tmp', os.path.basename(env.jqwidgets_zip_archive_path))
+        # unzip
+        run('unzip {zip_file_path} "jqwidgets/*" -d {dest_dir}'.format(
+            zip_file_path=env.jqwidgets_zip_archive_path,
+            dest_dir=os.path.join(STATICFILES_DIR, 'vendor')))
+    else:
+        print(red('No "jqwidgets_zip_archive_path" fabricrc setting specified, skip.'))
+        print(yellow('WARNING: install that dependence separately. See project documentation.'))
+
+
+@task
+def theme_install():
+    if env.get('theme_zip_archive_path'):
+        # if not localhost copy archive to a remote /tmp
+        if env.host != 'localhost':
+            put(env.theme_zip_archive_path, '/tmp')
+            env.theme_zip_archive_path = os.path.join(
+                '/tmp', os.path.basename(env.theme_zip_archive_path))
+        # create destination directory
+        tmp_dir = '/tmp/theme'
+        dest_dir = os.path.join(STATICFILES_DIR, 'theme')
+        run('mkdir -p {}'.format(dest_dir))
+        sources_path = 'Package-HTML/HTML'
+        container = os.path.join(tmp_dir, sources_path)
+        # unpack and place in static dir these folders:
+        required_sources = ['js', 'css', 'images']
+        for source in required_sources:
+            run('unzip {zip_file_path} "{source}" -d {tmp_dir}'.format(
+                zip_file_path=env.theme_zip_archive_path,
+                source=os.path.join(sources_path, source, '*'),
+                tmp_dir=tmp_dir))
+            run('cp -r {_from} {_to}'.format(
+                _from=os.path.join(container, source),
+                _to=dest_dir
+            ))
+        # unpack style.css and place it in theme/css static folder
+        run('unzip -j {zip_file_path} "{source}" -d {dest_dir}'.format(
+           zip_file_path=env.theme_zip_archive_path,
+           source=os.path.join(sources_path, 'style.css'),
+           dest_dir=os.path.join(dest_dir, 'css')))
+        sudo('rm -r {}'.format(tmp_dir))
+    else:
+        print(red('No "theme_zip_archive_path" fabricrc setting specified, skip.'))
+        print(yellow('WARNING: install that dependence separately. See project documentation.'))

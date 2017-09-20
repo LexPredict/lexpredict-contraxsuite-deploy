@@ -18,7 +18,6 @@ Currently, only Ubuntu 16.04LTS installations are automated with this deployment
 * edit local/fabricrc
   * set user and sudo password if required
   * change `public_ip`, `dns_name`
-  * `nginx_server_name` should be equal either `dns_name` (if https enabled) or `public_ip`
   * leave as is `"hosts = localhost"`
   * uncomment `"https_redirect"` if you use https
   * uncomment and set `"cert_email"` - use your email to produce ssl certificates if https enabled
@@ -46,7 +45,6 @@ Currently, only Ubuntu 16.04LTS installations are automated with this deployment
 * edit remote/fabricrc
   * set user (and password if needed)
   * change `public_ip`, `dns_name`
-  * `nginx_server_name` should be equal either `dns_name` (https) or `public_ip`
   * uncomment `"https_redirect"` if you use https
   * uncomment and set `"cert_email"` - use your email to produce ssl certificates if https enabled
 
