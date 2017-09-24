@@ -4,6 +4,7 @@ import configparser
 import csv
 import datetime
 import os
+import re
 import sys
 from contextlib import contextmanager
 from functools import wraps
@@ -98,14 +99,14 @@ Get local django settings
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 try:
     django.settings_module('settings')
-    from django.conf import settings
-    STATICFILES_DIR = settings.STATICFILES_DIRS[0].replace(
-        settings.PROJECT_DIR.root, env.project_dir)
-    STATIC_ROOT = settings.STATIC_ROOT.replace(settings.PROJECT_DIR.root, env.project_dir)
-    MEDIA_ROOT = settings.MEDIA_ROOT.replace(settings.PROJECT_DIR.root, env.project_dir)
-    FILEBROWSER_DIRECTORY = settings.FILEBROWSER_DIRECTORY
-    LOG_FILE_NAME = settings.LOG_FILE_NAME
-    CELERY_LOG_FILE_NAME = settings.CELERY_LOG_FILE_NAME
+    from django.conf import settings as dj_settings
+    STATICFILES_DIR = dj_settings.STATICFILES_DIRS[0].replace(
+        dj_settings.PROJECT_DIR.root, env.project_dir)
+    STATIC_ROOT = dj_settings.STATIC_ROOT.replace(dj_settings.PROJECT_DIR.root, env.project_dir)
+    MEDIA_ROOT = dj_settings.MEDIA_ROOT.replace(dj_settings.PROJECT_DIR.root, env.project_dir)
+    FILEBROWSER_DIRECTORY = dj_settings.FILEBROWSER_DIRECTORY
+    LOG_FILE_NAME = dj_settings.LOG_FILE_NAME
+    CELERY_LOG_FILE_NAME = dj_settings.CELERY_LOG_FILE_NAME
 except ImportError:
     STATICFILES_DIR = os.path.join(env.project_dir, '..', 'static')
     STATIC_ROOT = os.path.join(env.project_dir, 'staticfiles')
@@ -372,6 +373,7 @@ def setup_new_app_instance(install_project=False):
     redis_install()
     java_install()
     elasticsearch_install()
+    stanford_install()
 
     if install_project:
         install_project_files()
@@ -1152,3 +1154,32 @@ def theme_install():
     else:
         print(red('No "theme_zip_archive_path" fabricrc setting specified, skip.'))
         print(yellow('WARNING: install that dependence separately. See project documentation.'))
+
+
+@task
+def stanford_install():
+    with virtualenv():
+        result = run('pip show lexnlp', warn_only=True)
+        if result == '':
+            print(yellow('WARNING!!! Lexnlp package is not installed.'))
+            # return
+        # lexnlp_location = re.findall(r'Location:\s(.+?)$', result, re.M)[0].strip()
+
+    lexnlp_location = '/usr'
+    libs_path = os.path.join(lexnlp_location, 'lexnlp', 'libs')
+    mkdir(libs_path, use_sudo=True)
+
+    stanford_version = "2017-06-09"
+    stanford_path = os.path.join(libs_path, "stanford_nlp")
+    stanford_urls = [
+        'https://nlp.stanford.edu/software/stanford-corenlp-full-{}.zip',
+        'https://nlp.stanford.edu/software/stanford-parser-full-{}.zip',
+        'https://nlp.stanford.edu/software/stanford-english-corenlp-{}-models.jar',
+        'https://nlp.stanford.edu/software/stanford-postagger-full-{}.zip',
+        'https://nlp.stanford.edu/software/stanford-ner-{}.zip',
+    ]
+    for url in stanford_urls:
+        url = url.format(stanford_version)
+        run('wget --continue -O tmp.zip "{}"'.format(url))
+        run('unzip tmp.zip -d {}'.format(stanford_path))
+        run('rm -f tmp.zip')
