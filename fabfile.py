@@ -373,6 +373,8 @@ def setup_new_app_instance(install_project=False):
     redis_install()
     java_install()
     elasticsearch_install()
+    theme_install()
+    jqwidgets_install()
     stanford_install()
 
     if install_project:

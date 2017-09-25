@@ -20,17 +20,21 @@ fab -c remote/fabricrc elasticsearch_install
 
 fab -c remote/fabricrc git_clone
 fab -c remote/fabricrc create_dirs
+fab -c remote/fabricrc theme_install
+fab -c remote/fabricrc jqwidgets_install
+
 fab -c remote/fabricrc upload_templates
 fab -c remote/fabricrc manage:force_migrate
 fab -c remote/fabricrc manage:update_index
 fab -c remote/fabricrc manage:set_site
 fab -c remote/fabricrc manage:collectstatic
-fab -c remote/fabricrc nltk_download
-fab -c remote/fabricrc ssl_install
-fab -c remote/fabricrc start
-
-#v1.01
 fab -c remote/fabricrc create_superuser
+
+fab -c remote/fabricrc nltk_download
+fab -c remote/fabricrc stanford_install
+fab -c remote/fabricrc ssl_install
+
+fab -c remote/fabricrc start
 
 END_TIME="`date`"
 
