@@ -31,7 +31,6 @@ fab -c remote/fabricrc manage:collectstatic
 fab -c remote/fabricrc create_superuser
 
 fab -c remote/fabricrc nltk_download
-fab -c remote/fabricrc stanford_install
 fab -c remote/fabricrc ssl_install
 
 fab -c remote/fabricrc start

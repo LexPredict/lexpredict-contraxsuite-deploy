@@ -30,7 +30,6 @@ fab -c local/fabricrc manage:collectstatic
 fab -c local/fabricrc create_superuser
 
 fab -c local/fabricrc nltk_download
-fab -c local/fabricrc stanford_install
 fab -c local/fabricrc ssl_install
 
 fab -c local/fabricrc start
