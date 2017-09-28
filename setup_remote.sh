@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 START_TIME="`date`"
 
+if [ $(id -u) = 0 ]; then
+    echo "This script is not meant to be run as the root user.   Please review the Installation Guide and execute as a non-root user."
+    exit 1
+fi
+    
 sudo apt-get update -y --fix-missing
 sudo apt-get install -y python3-dev python-setuptools python-virtualenv python-pip
 
