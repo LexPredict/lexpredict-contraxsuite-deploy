@@ -375,7 +375,7 @@ def setup_new_app_instance(install_project=False):
     elasticsearch_install()
     theme_install()
     jqwidgets_install()
-    stanford_install()
+    # stanford_install()
 
     if install_project:
         install_project_files()
@@ -1087,7 +1087,7 @@ def create_superuser():
     Create superuser
     :return:
     """
-    if env.get('superuser_name'):
+    if env.get('superuser_username'):
         manage('create_superuser --username {} --password {} --email {}'.format(
             env.superuser_username,
             env.superuser_password,
