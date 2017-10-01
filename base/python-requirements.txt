@@ -29,6 +29,7 @@ Fabric3==1.13.1.post1
 fabtools-python==0.19.7
 flower==0.9.1
 fuzzywuzzy==0.15.1
+icalendar==3.11.7
 ipdb==0.10.2
 ipython==5.3.0
 Jinja2==2.9.5
