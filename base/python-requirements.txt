@@ -2,7 +2,7 @@ awesome-slugify==1.6.5
 boto==2.46.1
 celery[redis]==4.0.2
 https://github.com/LexPredict/datefinder/archive/master.zip
-https://github.com/LexPredict/lexpredict-lexnlp/archive/0.1.0.zip
+https://github.com/LexPredict/lexpredict-lexnlp/archive/0.1.1.zip
 django==1.11.3
 django-allauth==0.31.0
 django-allauth-2fa==0.4.4
