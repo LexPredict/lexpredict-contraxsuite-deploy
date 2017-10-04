@@ -4,9 +4,13 @@ key_filename = your-ssh-key-name.pem
 
 forward_agent = True
 public_ip = 11.111.111.11
-dns_name = 11.111.111.11
-hosts = 11.111.111.11
+dns_name = demo.example.com
+hosts = demo.example.com
 
 #https_redirect = False
 #cert_email = your@email.com
 
+# full path to a archive file,
+# e.g. /home/Downloads/themeforest-567483-canvas-the-multipurpose-html5-template.zip
+jqwidgets_zip_archive_path =
+theme_zip_archive_path =

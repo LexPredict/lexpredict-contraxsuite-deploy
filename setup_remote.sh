@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
-sudo apt-get install python3-dev python-setuptools python-virtualenv python-pip
+START_TIME="`date`"
+
+if [ $(id -u) = 0 ]; then
+    echo "This script is not meant to be run as the root user.   Please review the Installation Guide and execute as a non-root user."
+    exit 1
+fi
+    
+sudo apt-get update -y --fix-missing
+sudo apt-get install -y python3-dev python-setuptools python-virtualenv python-pip
 
 virtualenv -p python3 ve
 source ve/bin/activate
@@ -17,15 +25,23 @@ fab -c remote/fabricrc elasticsearch_install
 
 fab -c remote/fabricrc git_clone
 fab -c remote/fabricrc create_dirs
+fab -c remote/fabricrc theme_install
+fab -c remote/fabricrc jqwidgets_install
+
 fab -c remote/fabricrc upload_templates
 fab -c remote/fabricrc manage:force_migrate
 fab -c remote/fabricrc manage:update_index
 fab -c remote/fabricrc manage:set_site
 fab -c remote/fabricrc manage:collectstatic
-fab -c remote/fabricrc nltk_download
-fab -c remote/fabricrc ssl_install
-fab -c remote/fabricrc start
-
-#v1.01
 fab -c remote/fabricrc create_superuser
 
+fab -c remote/fabricrc nltk_download
+fab -c remote/fabricrc ssl_install
+
+fab -c remote/fabricrc start
+
+END_TIME="`date`"
+
+# Output timing stats
+echo "Started: $START_TIME"
+echo "Completed: $END_TIME"

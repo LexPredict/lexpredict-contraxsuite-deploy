@@ -4,7 +4,7 @@ SECRET_KEY = 'your-secret-key'
 
 AUTOLOGIN = False
 
-HOST_NAME = '%(host)s'
+HOST_NAME = '%(dns_name)s'
 DEBUG = False
 DEBUG_SQL = False
 DEBUG_TEMPLATE = False
@@ -42,9 +42,10 @@ ALLOWED_HOSTS = (
     'localhost',
     '%(host)s',
     '%(public_ip)s',
+    '%(dns_name)s'
 )
 
 INTERNAL_IPS = (
     '127.0.0.1',
-    '%(host)s'
+    'localhost'
 )
