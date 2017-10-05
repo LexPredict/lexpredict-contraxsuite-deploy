@@ -6,6 +6,7 @@ import datetime
 import os
 import re
 import sys
+from collections import OrderedDict
 from contextlib import contextmanager
 from functools import wraps
 
@@ -116,40 +117,40 @@ except ImportError:
     CELERY_LOG_FILE_NAME = 'celery.log'
 
 
-templates = {
-    'nginx': {
+templates = OrderedDict((
+    ('run', {
+        'local_path': 'templates/run.sh',
+        'remote_path': '~/run.sh'
+    }),
+    ('502', {
+        'local_path': 'templates/502.html',
+        'remote_path': '/usr/share/nginx/html/502.html',
+        'use_jinja': 'true'
+    }),
+    ('elasticsearch', {
+        'local_path': 'templates/elasticsearch.yml',
+        'remote_path': '/etc/elasticsearch/elasticsearch.yml',
+    }),
+    ('uwsgi-init', {
+        'local_path': 'templates/uwsgi.service',
+        'remote_path': '/etc/systemd/system/%s.service' % env.uwsgi_name
+    }),
+    ('uwsgi', {
+        'local_path': 'templates/uwsgi.ini',
+        'remote_path': '/etc/uwsgi/%s.ini' % env.uwsgi_name
+    }),
+    ('settings', {
+        'template_dir': '%(config_dir)s',
+        'local_path': 'local_settings.py',
+        'remote_path': '%(project_dir)s/local_settings.py'
+    }),
+    ('nginx', {
         'local_path': 'templates/nginx.conf',
         'remote_path': '/etc/nginx/sites-enabled/%s_nginx.conf' % env.templates_prefix,
         'reload_command': 'systemctl restart nginx',
         'use_jinja': 'true',
-    },
-    'uwsgi-init': {
-        'local_path': 'templates/uwsgi.service',
-        'remote_path': '/etc/systemd/system/%s.service' % env.uwsgi_name
-    },
-    'uwsgi': {
-        'local_path': 'templates/uwsgi.ini',
-        'remote_path': '/etc/uwsgi/%s.ini' % env.uwsgi_name
-    },
-    'settings': {
-        'template_dir': '%(config_dir)s',
-        'local_path': 'local_settings.py',
-        'remote_path': '%(project_dir)s/local_settings.py'
-    },
-    'run': {
-        'local_path': 'templates/run.sh',
-        'remote_path': '~/run.sh'
-    },
-    '502': {
-        'local_path': 'templates/502.html',
-        'remote_path': '/usr/share/nginx/html/502.html',
-        'use_jinja': 'true'
-    },
-    'elasticsearch': {
-        'local_path': 'templates/elasticsearch.yml',
-        'remote_path': '/etc/elasticsearch/elasticsearch.yml',
-    },
-}
+    }),
+))
 
 """
 --------------------------------
