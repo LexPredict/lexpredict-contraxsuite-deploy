@@ -3,6 +3,7 @@ boto==2.46.1
 celery[redis]==4.0.2
 https://github.com/LexPredict/datefinder/archive/master.zip
 https://github.com/LexPredict/lexpredict-lexnlp/archive/0.1.1.zip
+django-haystack==2.6.0
 django==1.11.3
 django-allauth==0.31.0
 django-allauth-2fa==0.4.4
@@ -16,7 +17,6 @@ django-environ==0.4.1
 django-excel==0.0.6
 django-extensions==1.7.7
 django-filebrowser-no-grappelli==3.7.0
-django-haystack==2.6.0
 django-model-utils==2.6.1
 django-pipeline==1.6.13
 django-redis==4.7.0

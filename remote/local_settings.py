@@ -3,6 +3,7 @@
 SECRET_KEY = 'your-secret-key'
 
 AUTOLOGIN = False
+PIPELINE_ENABLED = False
 
 HOST_NAME = '%(dns_name)s'
 DEBUG = False
