@@ -920,7 +920,7 @@ def nltk_download():
     """
     with cd(env.project_dir):
         sudo('{} -m nltk.downloader averaged_perceptron_tagger punkt stopwords '
-             ' words maxent_ne_chunker'.format(env.python_bin))
+             ' words maxent_ne_chunker wordnet'.format(env.python_bin))
 
 
 @task
