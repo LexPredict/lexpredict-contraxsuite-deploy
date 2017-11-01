@@ -26,8 +26,8 @@ from fabtools.postgres import (create_database,
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2017, ContraxSuite, LLC"
-__license__ = "https://github.com/LexPredict/lexpredict-contraxsuite/blob/1.0.2/LICENSE"
-__version__ = "1.0.2"
+__license__ = "https://github.com/LexPredict/lexpredict-contraxsuite/blob/1.0.3/LICENSE"
+__version__ = "1.0.3"
 __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
@@ -126,10 +126,6 @@ templates = OrderedDict((
         'local_path': 'templates/502.html',
         'remote_path': '/usr/share/nginx/html/502.html',
         'use_jinja': 'true'
-    }),
-    ('elasticsearch', {
-        'local_path': 'templates/elasticsearch.yml',
-        'remote_path': '/etc/elasticsearch/elasticsearch.yml',
     }),
     ('uwsgi-init', {
         'local_path': 'templates/uwsgi.service',
@@ -395,9 +391,6 @@ def install_project_files():
 
     # create superuser
     create_superuser()
-
-    # build index for elasticsearch
-    manage('update_index --remove')
 
     # setup site object
     manage('set_site')
@@ -874,30 +867,15 @@ def elasticsearch_install():
     """
     Install and run elasticsearch
     """
-    # create elasticsearch dir
-    # mkdir('/etc/elasticsearch', env.user, env.user, True)
+    sudo('/bin/sh -c "wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -"')
 
-    with cd('/tmp'):
-        # v.1
-        run('wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/'
-            'distribution/deb/elasticsearch/2.3.1/elasticsearch-2.3.1.deb')
-        sudo('dpkg -i elasticsearch-2.3.1.deb')
-        # v.2
-        # run('wget -qO - https://packages.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -')
-        # run('echo "deb http://packages.elastic.co/elasticsearch/2.x/debian stable main" | '
-        #     'sudo tee -a /etc/apt/sources.list.d/elasticsearch-2.x.list')
-        # sudo('apt-get update')
-        # sudo('apt-get -y install elasticsearch')
-
-    # create dirs:
-    mkdir('/usr/local/var/', env.user, env.user, True)
-    mkdir('/usr/local/var/data/', 'elasticsearch', 'elasticsearch', True)
-    mkdir('/usr/local/var/log/', 'elasticsearch', 'elasticsearch', True)
-
-    upload_template_and_reload('elasticsearch')
-
-    # make sure elasticsearch starts and stops automatically with the Droplet
-    sudo('systemctl enable elasticsearch')
+    # If everything start crashing: sudo apt remove --purge elasticsearch
+    sudo('/bin/sh -c \'echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" '
+         '| tee -a /etc/apt/sources.list.d/elastic-5.x.list\'')
+    sudo('apt-get update')
+    sudo('apt-get --yes --force-yes install elasticsearch')
+    sudo('systemctl daemon-reload')
+    sudo('systemctl enable elasticsearch.service')
     restart_service('elasticsearch')
 
 
