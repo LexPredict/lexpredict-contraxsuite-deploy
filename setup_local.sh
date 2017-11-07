@@ -29,7 +29,6 @@ fab -c local/fabricrc jqwidgets_install
 
 fab -c local/fabricrc upload_templates
 fab -c local/fabricrc manage:force_migrate
-fab -c local/fabricrc manage:update_index
 fab -c local/fabricrc manage:set_site
 fab -c local/fabricrc manage:collectstatic
 fab -c local/fabricrc create_superuser

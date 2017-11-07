@@ -30,7 +30,6 @@ fab -c remote/fabricrc jqwidgets_install
 
 fab -c remote/fabricrc upload_templates
 fab -c remote/fabricrc manage:force_migrate
-fab -c remote/fabricrc manage:update_index
 fab -c remote/fabricrc manage:set_site
 fab -c remote/fabricrc manage:collectstatic
 fab -c remote/fabricrc create_superuser

@@ -6,6 +6,7 @@ import datetime
 import os
 import re
 import sys
+from collections import OrderedDict
 from contextlib import contextmanager
 from functools import wraps
 
@@ -25,8 +26,8 @@ from fabtools.postgres import (create_database,
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2017, ContraxSuite, LLC"
-__license__ = "https://github.com/LexPredict/lexpredict-contraxsuite/blob/1.0.1/LICENSE"
-__version__ = "1.0.1"
+__license__ = "https://github.com/LexPredict/lexpredict-contraxsuite/blob/1.0.3/LICENSE"
+__version__ = "1.0.3"
 __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
@@ -116,40 +117,36 @@ except ImportError:
     CELERY_LOG_FILE_NAME = 'celery.log'
 
 
-templates = {
-    'nginx': {
+templates = OrderedDict((
+    ('run', {
+        'local_path': 'templates/run.sh',
+        'remote_path': '~/run.sh'
+    }),
+    ('502', {
+        'local_path': 'templates/502.html',
+        'remote_path': '/usr/share/nginx/html/502.html',
+        'use_jinja': 'true'
+    }),
+    ('uwsgi-init', {
+        'local_path': 'templates/uwsgi.service',
+        'remote_path': '/etc/systemd/system/%s.service' % env.uwsgi_name
+    }),
+    ('uwsgi', {
+        'local_path': 'templates/uwsgi.ini',
+        'remote_path': '/etc/uwsgi/%s.ini' % env.uwsgi_name
+    }),
+    ('settings', {
+        'template_dir': '%(config_dir)s',
+        'local_path': 'local_settings.py',
+        'remote_path': '%(project_dir)s/local_settings.py'
+    }),
+    ('nginx', {
         'local_path': 'templates/nginx.conf',
         'remote_path': '/etc/nginx/sites-enabled/%s_nginx.conf' % env.templates_prefix,
         'reload_command': 'systemctl restart nginx',
         'use_jinja': 'true',
-    },
-    'uwsgi-init': {
-        'local_path': 'templates/uwsgi.service',
-        'remote_path': '/etc/systemd/system/%s.service' % env.uwsgi_name
-    },
-    'uwsgi': {
-        'local_path': 'templates/uwsgi.ini',
-        'remote_path': '/etc/uwsgi/%s.ini' % env.uwsgi_name
-    },
-    'settings': {
-        'template_dir': '%(config_dir)s',
-        'local_path': 'local_settings.py',
-        'remote_path': '%(project_dir)s/local_settings.py'
-    },
-    'run': {
-        'local_path': 'templates/run.sh',
-        'remote_path': '~/run.sh'
-    },
-    '502': {
-        'local_path': 'templates/502.html',
-        'remote_path': '/usr/share/nginx/html/502.html',
-        'use_jinja': 'true'
-    },
-    'elasticsearch': {
-        'local_path': 'templates/elasticsearch.yml',
-        'remote_path': '/etc/elasticsearch/elasticsearch.yml',
-    },
-}
+    }),
+))
 
 """
 --------------------------------
@@ -394,9 +391,6 @@ def install_project_files():
 
     # create superuser
     create_superuser()
-
-    # build index for elasticsearch
-    manage('update_index --remove')
 
     # setup site object
     manage('set_site')
@@ -873,30 +867,15 @@ def elasticsearch_install():
     """
     Install and run elasticsearch
     """
-    # create elasticsearch dir
-    # mkdir('/etc/elasticsearch', env.user, env.user, True)
+    sudo('/bin/sh -c "wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -"')
 
-    with cd('/tmp'):
-        # v.1
-        run('wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/'
-            'distribution/deb/elasticsearch/2.3.1/elasticsearch-2.3.1.deb')
-        sudo('dpkg -i elasticsearch-2.3.1.deb')
-        # v.2
-        # run('wget -qO - https://packages.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -')
-        # run('echo "deb http://packages.elastic.co/elasticsearch/2.x/debian stable main" | '
-        #     'sudo tee -a /etc/apt/sources.list.d/elasticsearch-2.x.list')
-        # sudo('apt-get update')
-        # sudo('apt-get -y install elasticsearch')
-
-    # create dirs:
-    mkdir('/usr/local/var/', env.user, env.user, True)
-    mkdir('/usr/local/var/data/', 'elasticsearch', 'elasticsearch', True)
-    mkdir('/usr/local/var/log/', 'elasticsearch', 'elasticsearch', True)
-
-    upload_template_and_reload('elasticsearch')
-
-    # make sure elasticsearch starts and stops automatically with the Droplet
-    sudo('systemctl enable elasticsearch')
+    # If everything start crashing: sudo apt remove --purge elasticsearch
+    sudo('/bin/sh -c \'echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" '
+         '| tee -a /etc/apt/sources.list.d/elastic-5.x.list\'')
+    sudo('apt-get update')
+    sudo('apt-get --yes --force-yes install elasticsearch')
+    sudo('systemctl daemon-reload')
+    sudo('systemctl enable elasticsearch.service')
     restart_service('elasticsearch')
 
 
@@ -919,7 +898,7 @@ def nltk_download():
     """
     with cd(env.project_dir):
         sudo('{} -m nltk.downloader averaged_perceptron_tagger punkt stopwords '
-             ' words maxent_ne_chunker'.format(env.python_bin))
+             ' words maxent_ne_chunker wordnet'.format(env.python_bin))
 
 
 @task
