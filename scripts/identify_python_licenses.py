@@ -20,6 +20,10 @@ if __name__ == "__main__":
     with open("base/python-requirements.txt", "r") as input_file:
         # Iterate through all lines
         for line in input_file.readlines():
+            # Check for github URLs
+            if "https://github.com/" in line:
+                continue
+            
             # Setup package dictionary
             package_row =  dict([(key, None) for key in OUTPUT_KEYS])
             
