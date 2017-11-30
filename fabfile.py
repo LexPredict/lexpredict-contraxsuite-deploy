@@ -26,8 +26,8 @@ from fabtools.postgres import (create_database,
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2017, ContraxSuite, LLC"
-__license__ = "https://github.com/LexPredict/lexpredict-contraxsuite/blob/1.0.3/LICENSE"
-__version__ = "1.0.3"
+__license__ = "https://github.com/LexPredict/lexpredict-contraxsuite/blob/1.0.4/LICENSE"
+__version__ = "1.0.4"
 __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
@@ -367,6 +367,9 @@ def setup_new_app_instance(install_project=False):
     debian_upgrade_reboot()
     create_base_directory()
     python_install()
+    # RabbitMQ is used as message broker.
+    rabbitmq_install()
+    # Installing redis to allow easy switching and for possible usage as key-value storage.
     redis_install()
     java_install()
     elasticsearch_install()
@@ -841,6 +844,24 @@ def redis_install():
 
 @task
 @log_call
+def rabbitmq_install():
+    """
+    Installs RabbitMQ
+    """
+    sudo('/bin/sh -c "wget -qO - https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | apt-key add -"')
+    sudo('/bin/sh -c \'echo "deb http://www.rabbitmq.com/debian/ testing main" '
+         '| tee -a /etc/apt/sources.list.d/rabbitmq.list\'')
+
+    sudo('apt-get update')
+    sudo('apt-get --yes --force-yes install rabbitmq-server')
+
+    sudo('rabbitmqctl add_user contrax1 contrax1')
+    sudo('rabbitmqctl add_vhost contrax1_vhost')
+    sudo('rabbitmqctl set_permissions -p contrax1_vhost contrax1 ".*" ".*" ".*"')
+
+
+@task
+@log_call
 def yuglify_install():
     sudo('npm -g install yuglify')
     sudo('ln -s /usr/bin/nodejs /usr/bin/node')
@@ -1085,6 +1106,7 @@ def virtualenv():
 
 
 @task
+@log_call
 def jqwidgets_install():
     if env.get('jqwidgets_zip_archive_path'):
         # if not localhost copy archive to a remote /tmp
@@ -1102,6 +1124,7 @@ def jqwidgets_install():
 
 
 @task
+@log_call
 def theme_install():
     if env.get('theme_zip_archive_path'):
         # if not localhost copy archive to a remote /tmp
@@ -1120,11 +1143,11 @@ def theme_install():
         for source in required_sources:
             run('unzip {zip_file_path} "{source}" -d {tmp_dir}'.format(
                 zip_file_path=env.theme_zip_archive_path,
-                source=os.path.join(sources_path, source, '*'),
-                tmp_dir=tmp_dir))
+                source=os.path.join(sources_path, source, '*'), # e.g. Package-HTML/HTML/js/*
+                tmp_dir=tmp_dir))                               # e.g. /tmp/theme
             run('cp -r {_from} {_to}'.format(
-                _from=os.path.join(container, source),
-                _to=dest_dir
+                _from=os.path.join(container, source),          # e.g. /tmp/theme/Package-HTML/HTML/js
+                _to=dest_dir                                    # e.g. staticfiles/theme
             ))
         # unpack style.css and place it in theme/css static folder
         run('unzip -j {zip_file_path} "{source}" -d {dest_dir}'.format(

@@ -5,7 +5,7 @@ ve_dir = ve
 templates_prefix = contrax
 
 # GIT credentials
-git_branch = 1.0.3
+git_branch = 1.0.4
 git_uri = https://github.com/LexPredict/lexpredict-contraxsuite.git
 
 # DB credentials
@@ -21,7 +21,7 @@ uwsgi_socket = 127.0.0.1:8001
 
 # CELERY settings
 celery_worker = 2
-celery_app = apps.task
+celery_app = apps
 celery_opts = -l info -B
 
 # v1.01 Superuser credentials 
