@@ -13,6 +13,7 @@ django-environ==0.4.1
 django-excel==0.0.6
 django-extensions==1.7.7
 django-filebrowser-no-grappelli==3.7.0
+django-picklefield==1.0.0
 django-pipeline==1.6.13
 django-simple-history==1.8.2
 django-suit==0.2.24
