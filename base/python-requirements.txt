@@ -1,4 +1,4 @@
-celery[redis]==4.1.0
+celery==4.1.0
 https://github.com/LexPredict/datefinder/archive/master.zip
 https://github.com/LexPredict/lexpredict-lexnlp/archive/0.1.3.zip
 django==1.11.3
