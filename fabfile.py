@@ -891,8 +891,8 @@ def elasticsearch_install():
     sudo('/bin/sh -c "wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -"')
 
     # If everything start crashing: sudo apt remove --purge elasticsearch
-    sudo('/bin/sh -c \'echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" '
-         '| tee -a /etc/apt/sources.list.d/elastic-5.x.list\'')
+    sudo('/bin/sh -c \'echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" '
+         '| tee -a /etc/apt/sources.list.d/elastic-6.x.list\'')
     sudo('apt-get update')
     sudo('apt-get --yes --force-yes install elasticsearch')
     sudo('systemctl daemon-reload')
