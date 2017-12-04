@@ -17,7 +17,7 @@ django-picklefield==1.0.0
 django-pipeline==1.6.13
 django-simple-history==1.8.2
 django-suit==0.2.24
-elasticsearch==5.1.0
+elasticsearch==6.0.0
 fuzzywuzzy==0.15.1
 geocoder==1.23.1
 icalendar==3.11.7
