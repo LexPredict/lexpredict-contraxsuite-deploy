@@ -19,7 +19,7 @@ fab -c remote/fabricrc postgres_create
 fab -c remote/fabricrc debian_upgrade_reboot
 fab -c remote/fabricrc create_base_directory
 fab -c remote/fabricrc python_install
-fab -c local/fabricrc rabbitmq_install
+fab -c remote/fabricrc rabbitmq_install
 fab -c remote/fabricrc java_install
 fab -c remote/fabricrc elasticsearch_install
 
