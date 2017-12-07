@@ -512,15 +512,18 @@ def start_service(service_name):
 
 
 @task
-def stop_celery():
+def stop_celery(kill_process=False):
     """
     Stop celery workers
     """
     with cd(env.project_dir):
-        run('{ve_dir}/bin/celery multi stop {celery_worker} -A {celery_app}'.format(
-            ve_dir=env.virtualenv_dir,
-            celery_worker=env.celery_worker,
-            celery_app=env.celery_app))
+        if kill_process:
+            run('pkill -f "celery worker .*-A apps"')
+        else:
+            run('{ve_dir}/bin/celery multi stop {celery_worker} -A {celery_app}'.format(
+                ve_dir=env.virtualenv_dir,
+                celery_worker=env.celery_worker,
+                celery_app=env.celery_app))
 
 
 @task
@@ -558,7 +561,7 @@ def purge_celery():
     Purge celery tasks
     """
     with cd(env.project_dir):
-        run('{ve_dir}/bin/celery -A {celery_app} purge'.format(
+        run('{ve_dir}/bin/celery -A {celery_app} purge -f'.format(
             ve_dir=env.virtualenv_dir,
             celery_app=env.celery_app))
 
