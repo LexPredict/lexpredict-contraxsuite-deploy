@@ -28,7 +28,14 @@ fab -c remote/fabricrc create_dirs
 fab -c remote/fabricrc theme_install
 fab -c remote/fabricrc jqwidgets_install
 
-fab -c remote/fabricrc upload_templates
+#fab -c remote/fabricrc upload_templates
+fab -c remote/fabricrc upload_template_and_reload:settings
+fab -c remote/fabricrc upload_template_and_reload:502
+fab -c remote/fabricrc upload_template_and_reload:uwsgi-init
+fab -c remote/fabricrc upload_template_and_reload:uwsgi
+fab -c remote/fabricrc upload_template_and_reload:settings
+fab -c remote/fabricrc upload_template_and_reload:nginx
+
 fab -c remote/fabricrc manage:force_migrate
 fab -c remote/fabricrc manage:set_site
 fab -c remote/fabricrc manage:collectstatic
