@@ -61,3 +61,15 @@ Currently, only Ubuntu 16.04LTS installations are automated with this deployment
 
 * in terminal:
   * `$ ./setup_remote.sh | tee -a log.txt`
+
+
+### Upgrade to Newest Release
+
+* To upgrade from previous release, use
+  `$ ./update_remote.sh` and `$ ./update_local.sh` accordingly.
+   Note that you should use those commands in the same virtual environment you
+   used to install the project before.
+* To upgrade from release <= 1.0.3, use
+  `$ ./update_remote.sh` and `$ ./update_local.sh` accordingly, 
+  but note that you should uncomment lines with "rabbitmq_install" and 
+  "elasticsearch_install" commands.
