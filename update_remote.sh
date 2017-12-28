@@ -19,8 +19,10 @@ fab -c remote/fabricrc stop
 fab -c local/fabricrc stop_celery:kill_process=1
 
 fab -c remote/fabricrc python_install
-fab -c remote/fabricrc rabbitmq_install
-fab -c remote/fabricrc elasticsearch_install
+
+# to upgrade from version<=1.0.3
+#fab -c remote/fabricrc rabbitmq_install
+#fab -c remote/fabricrc elasticsearch_install
 
 fab -c remote/fabricrc git_pull
 
