@@ -556,7 +556,7 @@ def start_celery():
     Start celery workers
     """
     with cd(env.project_dir):
-        run('{ve_dir}/bin/celery multi start '
+        run('C_FORCE_ROOT=true {ve_dir}/bin/celery multi start '
             '{celery_worker} -A {celery_app} -f {log_file_name} {opts}'.format(
             ve_dir=env.virtualenv_dir,
             celery_worker=env.celery_worker,
