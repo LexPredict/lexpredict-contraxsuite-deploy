@@ -18,6 +18,7 @@ fab -c local/fabricrc locales_install
 fab -c local/fabricrc postgres_create
 fab -c local/fabricrc create_base_directory
 fab -c local/fabricrc python_install
+fab -c local/fabricrc redis_install
 fab -c local/fabricrc rabbitmq_install
 fab -c local/fabricrc java_install
 fab -c local/fabricrc elasticsearch_install
