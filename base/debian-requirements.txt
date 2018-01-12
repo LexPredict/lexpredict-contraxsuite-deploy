@@ -37,6 +37,7 @@ graphviz-dev
 
 # redis
 tcl
+redis-server
 
 # required to translate
 gettext
