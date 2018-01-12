@@ -23,6 +23,7 @@ uwsgi_socket = 127.0.0.1:8001
 celery_worker = 2
 celery_app = apps
 celery_opts = -l info -B
+celery_run_as_root = false
 
 # v1.01 Superuser credentials 
 superuser_username = demo

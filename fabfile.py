@@ -544,7 +544,8 @@ def stop_celery(kill_process=False):
         if kill_process:
             run('pkill -f "celery worker .*-A apps"')
         else:
-            run('{ve_dir}/bin/celery multi stop {celery_worker} -A {celery_app}'.format(
+            run('{run_as_root}{ve_dir}/bin/celery multi stop {celery_worker} -A {celery_app}'.format(
+                run_as_root='C_FORCE_ROOT ' if env.celery_run_as_root else '',
                 ve_dir=env.virtualenv_dir,
                 celery_worker=env.celery_worker,
                 celery_app=env.celery_app))
@@ -556,8 +557,9 @@ def start_celery():
     Start celery workers
     """
     with cd(env.project_dir):
-        run('{ve_dir}/bin/celery multi start '
+        run('{run_as_root}{ve_dir}/bin/celery multi start '
             '{celery_worker} -A {celery_app} -f {log_file_name} {opts}'.format(
+            run_as_root='C_FORCE_ROOT ' if env.celery_run_as_root == 'true' else '',
             ve_dir=env.virtualenv_dir,
             celery_worker=env.celery_worker,
             celery_app=env.celery_app,
