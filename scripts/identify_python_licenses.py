@@ -42,5 +42,3 @@ if __name__ == "__main__":
 
     # CLose CSV file
     csv_file.close()
-                
-            
