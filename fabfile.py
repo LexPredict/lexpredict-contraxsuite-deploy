@@ -49,9 +49,9 @@ from fabtools.postgres import (create_database,
                                user_exists as pg_user_exists)
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
-__copyright__ = "Copyright 2015-2017, ContraxSuite, LLC"
-__license__ = "https://github.com/LexPredict/lexpredict-contraxsuite/blob/master/LICENSE"
-__version__ = "1.0.7"
+__copyright__ = "Copyright 2015-2018, ContraxSuite, LLC"
+__license__ = "https://github.com/LexPredict/lexpredict-contraxsuite/blob/1.0.8/LICENSE"
+__version__ = "1.0.8"
 __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
@@ -558,7 +558,7 @@ def start_celery():
     with cd(env.project_dir):
         run('{run_as_root}{ve_dir}/bin/celery multi start '
             '{celery_worker} -A {celery_app} -f {log_file_name} {opts}'.format(
-            run_as_root='C_FORCE_ROOT=true ' if env.celery_run_as_root == 'true' else '',
+            run_as_root='C_FORCE_ROOT ' if env.celery_run_as_root == 'true' else '',
             ve_dir=env.virtualenv_dir,
             celery_worker=env.celery_worker,
             celery_app=env.celery_app,
@@ -869,7 +869,6 @@ def redis_install():
                 sudo('echo -n | ./install_server.sh')
     start_redis()
 
-
 @task
 @log_call
 def rabbitmq_install():
@@ -877,8 +876,7 @@ def rabbitmq_install():
     Installs RabbitMQ
     """
     sudo('/bin/sh -c "wget -qO - https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | apt-key add -"')
-    sudo('/bin/sh -c \'echo "deb http://www.rabbitmq.com/debian/ testing main" '
-         '| tee -a /etc/apt/sources.list.d/rabbitmq.list\'')
+    sudo('/bin/sh -c \'echo "deb http://www.rabbitmq.com/debian/ testing main" | tee -a /etc/apt/sources.list.d/rabbitmq.list\'')
 
     sudo('apt-get update')
     sudo('apt-get --yes --force-yes install rabbitmq-server')
