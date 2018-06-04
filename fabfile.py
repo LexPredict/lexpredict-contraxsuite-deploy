@@ -51,7 +51,7 @@ from fabtools.postgres import (create_database,
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2018, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-contraxsuite/blob/1.0.8/LICENSE"
-__version__ = "1.0.8"
+__version__ = "1.0.9"
 __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
@@ -130,15 +130,17 @@ try:
     STATIC_ROOT = dj_settings.STATIC_ROOT.replace(dj_settings.PROJECT_DIR.root, env.project_dir)
     MEDIA_ROOT = dj_settings.MEDIA_ROOT.replace(dj_settings.PROJECT_DIR.root, env.project_dir)
     FILEBROWSER_DIRECTORY = dj_settings.FILEBROWSER_DIRECTORY
-    LOG_FILE_NAME = dj_settings.LOG_FILE_NAME
-    CELERY_LOG_FILE_NAME = dj_settings.CELERY_LOG_FILE_NAME
-except ImportError:
+    CELERY_LOG_FILE_PATH = dj_settings.CELERY_LOG_FILE_PATH
+    LOG_FILE_PATH = dj_settings.LOG_FILE_PATH
+    DB_LOG_FILE_PATH = dj_settings.DB_LOG_FILE_PATH
+except (AttributeError, ImportError):
     STATICFILES_DIR = os.path.join(env.project_dir, '..', 'static')
     STATIC_ROOT = os.path.join(env.project_dir, 'staticfiles')
     MEDIA_ROOT = os.path.join(env.project_dir, 'media')
     FILEBROWSER_DIRECTORY = 'data/documents/'
-    LOG_FILE_NAME = 'log.txt'
-    CELERY_LOG_FILE_NAME = 'celery.log'
+    LOG_FILE_PATH = 'logs/log.txt'
+    CELERY_LOG_FILE_PATH = 'logs/celery.log'
+    DB_LOG_FILE_PATH = 'logs/db.log'
 
 
 templates = OrderedDict((
@@ -448,14 +450,13 @@ def create_dirs():
     # create tika log file, otherwise celery won't register tasks
     run_check('touch /tmp/tika.log')
     sudo('chown -R {}:{} /tmp/tika.log'.format(env.user, env.user))
-    # create app log file
-    app_log_file_path = os.path.join(env.project_dir, LOG_FILE_NAME)
-    sudo('touch %s' % app_log_file_path)
-    sudo('chown -R {}:{} {}'.format(env.user, env.user, app_log_file_path))
-    # create celery log file
-    celery_log_file_path = os.path.join(env.project_dir, CELERY_LOG_FILE_NAME)
-    sudo('touch %s' % celery_log_file_path)
-    sudo('chown -R {}:{} {}'.format(env.user, env.user, celery_log_file_path))
+    # create log files
+    logs_dir_path = os.path.join(env.project_dir, 'logs')
+    mkdir(logs_dir_path, env.user, env.user, True)
+    for log_path in (LOG_FILE_PATH, CELERY_LOG_FILE_PATH, DB_LOG_FILE_PATH):
+        #log_path = os.path.join(logs_dir_path, log_path)
+        sudo('touch %s' % log_path)
+        sudo('chown -R {}:{} {}'.format(env.user, env.user, log_path))
 
 
 @task
@@ -557,13 +558,13 @@ def start_celery():
     """
     with cd(env.project_dir):
         run('{run_as_root}{ve_dir}/bin/celery multi start '
-            '{celery_worker} -A {celery_app} -f {log_file_name} {opts}'.format(
+            '{celery_worker} -A {celery_app} -f {log_file_path} {opts}'.format(
             run_as_root='C_FORCE_ROOT ' if env.celery_run_as_root == 'true' else '',
             ve_dir=env.virtualenv_dir,
             celery_worker=env.celery_worker,
             celery_app=env.celery_app,
             opts=env.celery_opts,
-            log_file_name=CELERY_LOG_FILE_NAME))
+            log_file_path=CELERY_LOG_FILE_PATH))
 
 
 @task
