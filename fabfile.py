@@ -28,7 +28,7 @@ import configparser
 import csv
 import datetime
 import os
-import re
+import platform
 import sys
 from collections import OrderedDict
 from contextlib import contextmanager
@@ -50,8 +50,8 @@ from fabtools.postgres import (create_database,
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2018, ContraxSuite, LLC"
-__license__ = "https://github.com/LexPredict/lexpredict-contraxsuite/blob/1.0.8/LICENSE"
-__version__ = "1.0.9"
+__license__ = "https://github.com/LexPredict/lexpredict-contraxsuite/blob/1.1.1/LICENSE"
+__version__ = "1.1.0"
 __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
@@ -133,15 +133,14 @@ try:
     CELERY_LOG_FILE_PATH = dj_settings.CELERY_LOG_FILE_PATH
     LOG_FILE_PATH = dj_settings.LOG_FILE_PATH
     DB_LOG_FILE_PATH = dj_settings.DB_LOG_FILE_PATH
-except (AttributeError, ImportError):
+except ImportError:
     STATICFILES_DIR = os.path.join(env.project_dir, '..', 'static')
     STATIC_ROOT = os.path.join(env.project_dir, 'staticfiles')
     MEDIA_ROOT = os.path.join(env.project_dir, 'media')
     FILEBROWSER_DIRECTORY = 'data/documents/'
-    LOG_FILE_PATH = 'logs/log.txt'
-    CELERY_LOG_FILE_PATH = 'logs/celery.log'
-    DB_LOG_FILE_PATH = 'logs/db.log'
-
+    CELERY_LOG_FILE_PATH = os.path.join(env.project_dir, 'logs/celery-{0}.log'.format(platform.node()))
+    LOG_FILE_PATH = os.path.join(env.project_dir, 'logs/django-{0}.log'.format(platform.node()))
+    DB_LOG_FILE_PATH = os.path.join(env.project_dir, 'logs/db-{0}.log'.format(platform.node()))
 
 templates = OrderedDict((
     ('run', {
@@ -418,6 +417,10 @@ def install_project_files():
     manage('force_migrate')
     # manage('migrate --noinput')
 
+    # load roles, statuses, status groups, etc
+    manage('loadnewdata fixtures/common/*.json')
+    manage('loadnewdata fixtures/private/*.json')
+
     # create superuser
     create_superuser()
 
@@ -454,7 +457,6 @@ def create_dirs():
     logs_dir_path = os.path.join(env.project_dir, 'logs')
     mkdir(logs_dir_path, env.user, env.user, True)
     for log_path in (LOG_FILE_PATH, CELERY_LOG_FILE_PATH, DB_LOG_FILE_PATH):
-        #log_path = os.path.join(logs_dir_path, log_path)
         sudo('touch %s' % log_path)
         sudo('chown -R {}:{} {}'.format(env.user, env.user, log_path))
 
@@ -543,12 +545,10 @@ def stop_celery(kill_process=False):
     """
     with cd(env.project_dir):
         if kill_process:
-            run('pkill -f "celery worker .*-A apps"')
+            run('pkill -f "celery"')
         else:
-            run('{ve_dir}/bin/celery multi stop {celery_worker} -A {celery_app}'.format(
-                ve_dir=env.virtualenv_dir,
-                celery_worker=env.celery_worker,
-                celery_app=env.celery_app))
+            run('{ve_dir}/bin/celery purge -A apps -f'.format(
+                ve_dir=env.virtualenv_dir))
 
 
 @task
@@ -557,14 +557,14 @@ def start_celery():
     Start celery workers
     """
     with cd(env.project_dir):
-        run('{run_as_root}{ve_dir}/bin/celery multi start '
-            '{celery_worker} -A {celery_app} -f {log_file_path} {opts}'.format(
+        run('{run_as_root}{ve_dir}/bin/celery multi restart '
+            'worker -A apps -B -Q serial --concurrency=1 -Ofair -l DEBUG -n beat@%h'.format(
             run_as_root='C_FORCE_ROOT ' if env.celery_run_as_root == 'true' else '',
-            ve_dir=env.virtualenv_dir,
-            celery_worker=env.celery_worker,
-            celery_app=env.celery_app,
-            opts=env.celery_opts,
-            log_file_path=CELERY_LOG_FILE_PATH))
+            ve_dir=env.virtualenv_dir))
+        run('{run_as_root}{ve_dir}/bin/celery multi restart '
+            'worker1 -A apps -Q default,high_priority --concurrency=1 -Ofair -n default_priority@%h'.format(
+            run_as_root='C_FORCE_ROOT ' if env.celery_run_as_root == 'true' else '',
+            ve_dir=env.virtualenv_dir))
 
 
 @task
@@ -694,12 +694,12 @@ Fabric system utils
 
 
 @task
-def manage(cmd):
+def manage(*args):
     """
     Run django management command
     """
     with cd(env.project_dir):
-        sudo('{} manage.py {}'.format(env.python_bin, cmd))
+        sudo('{} manage.py {}'.format(env.python_bin, ' '.join(args)))
 
 
 def run_check(command, use_sudo=False, combine_stderr=True, **kw):

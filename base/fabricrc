@@ -5,7 +5,7 @@ ve_dir = ve
 templates_prefix = contrax
 
 # GIT credentials
-git_branch = master
+git_branch = 1.1.1c
 git_uri = https://github.com/LexPredict/lexpredict-contraxsuite.git
 
 # DB credentials

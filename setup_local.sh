@@ -39,10 +39,15 @@ fab -c local/fabricrc upload_template_and_reload:nginx
 fab -c local/fabricrc manage:force_migrate
 fab -c local/fabricrc manage:set_site
 fab -c local/fabricrc manage:collectstatic
+fab -c local/fabricrc manage:loadnewdata,fixtures/common/*.json
+fab -c local/fabricrc manage:loadnewdata,fixtures/private/*.json
 fab -c local/fabricrc create_superuser
 
 fab -c local/fabricrc nltk_download
 fab -c local/fabricrc ssl_install
+
+# ensure all dirs created
+fab -c local/fabricrc create_dirs
 
 fab -c local/fabricrc start
 
