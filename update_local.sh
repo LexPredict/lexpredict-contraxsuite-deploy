@@ -11,7 +11,7 @@ fi
 
 #virtualenv -p python3 ve
 source ve/bin/activate
-#pip install Fabric3==1.13.1.post1 fabtools-python==0.19.7 Jinja2==2.9.5
+#pip install Fabric3==1.13.1.post1 fabtools-python==0.19.7 Jinja2==2.10.1
 
 fab -c local/fabricrc stop
 
